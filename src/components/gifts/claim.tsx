@@ -26,7 +26,7 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
         {gifts
           .filter((gift) => gift.status !== GiftStatus.Claimed)
           .map((gift, index) => (
-            <Grid item xs={2} sm={4} md={4} key={index}>
+            <Grid size={{ xs: 2, sm: 4, md: 4 }} key={index}>
               <SingleGift key={gift.name} gift={gift} />
             </Grid>
           ))}
