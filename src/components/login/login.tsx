@@ -54,7 +54,7 @@ const Login: FC = () => {
         {weddingConfig.people.groom.firstName} & {weddingConfig.people.bride.firstName}
       </Typography>
       <Typography variant="h2" textAlign="center" sx={{ color: 'primary.contrastText', pb: 2 }}>
-        Please Login Below
+        Faça login abaixo
       </Typography>
       <Box
         sx={{

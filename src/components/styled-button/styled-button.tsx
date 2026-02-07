@@ -1,24 +1,31 @@
-import React, { FC, ReactNode } from 'react'
+import React, { ButtonHTMLAttributes, FC, ReactNode } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { ButtonProps } from '@mui/material/Button'
 import { fontFamily } from '@/config/theme/typography'
 
-interface BaseButtonProps extends Pick<ButtonProps, 'onClick' | 'type' | 'startIcon' | 'endIcon'> {
+interface BaseButtonProps
+  extends
+    Pick<ButtonProps, 'startIcon' | 'endIcon'>,
+    Pick<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'type'> {
   variant?: 'contained' | 'outlined' | 'text'
   color?: 'default' | 'primary' | 'secondary' | 'dark' | 'light'
   size?: 'small' | 'medium' | 'large' | 'xlarge'
   disableHoverEffect?: boolean
   pulse?: 'true' | 'false'
 }
-interface StyledButtonRootProps extends BaseButtonProps {
+interface StyledButtonRootProps extends Omit<BaseButtonProps, 'onClick' | 'startIcon' | 'endIcon'> {
   theme?: Theme
 }
 
 const StyledButtonRoot = styled('button', {
   shouldForwardProp: (prop) =>
-    prop !== 'variant' && prop !== 'color' && prop !== 'size' && prop !== 'disableHoverEffect',
+    prop !== 'variant' &&
+    prop !== 'color' &&
+    prop !== 'size' &&
+    prop !== 'disableHoverEffect' &&
+    prop !== 'pulse',
 })<StyledButtonRootProps>(({ theme, color, variant, size, disableHoverEffect, pulse }) => ({
   fontFamily,
   cursor: 'pointer',
@@ -179,13 +186,24 @@ const StyledButton: FC<Props> = ({
   disableHoverEffect = false,
   startIcon,
   endIcon,
+  type = 'button',
   color = 'primary',
   variant = 'contained',
   size = 'medium',
+  pulse = 'false',
   ...rest
 }: Props) => {
   return (
-    <StyledButtonRoot onClick={onClick} disableHoverEffect={disableHoverEffect} {...rest}>
+    <StyledButtonRoot
+      onClick={onClick}
+      type={type}
+      color={color}
+      variant={variant}
+      size={size}
+      pulse={pulse}
+      disableHoverEffect={disableHoverEffect}
+      {...rest}
+    >
       {startIcon && (
         <Box component="span" sx={{ display: 'inherit', mr: 1, ml: -0.5 }}>
           {startIcon}
