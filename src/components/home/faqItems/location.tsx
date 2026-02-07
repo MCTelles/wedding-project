@@ -15,7 +15,7 @@ const FAQLocation: FC = () => {
         justifyContent: 'center',
         borderRadius: 3,
         backgroundColor: theme.palette.secondary.dark,
-        maxWidth: 500,
+        maxWidth: 2000,
         mx: 'auto',
       }}
     >
@@ -37,8 +37,8 @@ const FAQLocation: FC = () => {
         <Box sx={{ borderRadius: 5, overflow: 'hidden', cursor: 'pointer' }}>
           <Image
             alt={`Mapa de ${weddingConfig.location.title}`}
-            src={`https://maps.googleapis.com/maps/api/staticmap?center=${weddingConfig.location.latLng}&zoom=15&size=400x400&markers=${weddingConfig.location.latLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
-            width={400}
+            src={`https://maps.googleapis.com/maps/api/staticmap?center=${weddingConfig.location.latLng}&zoom=15&size=800x400&markers=${weddingConfig.location.latLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+            width={800}
             height={400}
           />
         </Box>

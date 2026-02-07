@@ -13,12 +13,12 @@ const HomeLaurel: React.FC = () => {
 
   const calcLeft = (): string => {
     if (matchTabletView) {
-      return '49vw'
+      return '62vw'
     }
     if (matchDesktopView) {
-      return '25vw'
+      return '50vw'
     }
-    return '340px'
+    return '710px'
   }
 
   const calcTop = (): string => {
