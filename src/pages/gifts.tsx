@@ -2,15 +2,11 @@ import React, { useEffect } from 'react'
 import { GiftsClaim, GiftsHero } from '@/components/gifts'
 import { NextPage } from 'next'
 import { Gift } from '@/interfaces/gifts'
-import { getGiftsFromAirtable } from '@/utils/airtable'
 import { Box, CircularProgress } from '@mui/material'
 import { GiftClaim as GiftClaimDisclaimer } from '@/components/home/faqItems'
+import { getGiftsFromAirtable } from '@/utils/airtable'
 
-type HomePageProps = {
-  gifts: Gift[]
-}
-
-const Home: NextPage<HomePageProps> = () => {
+const Home: NextPage = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(true)
   const [giftsData, setGiftsData] = React.useState<Gift[]>([])
 

@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react'
-import { Box, Grid } from '@mui/material'
+import { Box, Container, Grid, Typography } from '@mui/material'
 import { Gift, GiftStatus } from '@/interfaces/gifts'
 import SingleGift from './gift'
 
@@ -22,15 +22,25 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
 
   return (
     <Box id="hero" sx={{ backgroundColor: 'background.paper', py: 5 }}>
-      <Grid container spacing={{ xs: 3, md: 3 }} columns={{ xs: 2, sm: 8, md: 12 }}>
-        {gifts
-          .filter((gift) => gift.status !== GiftStatus.Claimed)
-          .map((gift, index) => (
-            <Grid key={index} sx={{ xs: 2, sm: 4, md: 4 }}>
-              <SingleGift key={gift.name} gift={gift} />
+      <Container maxWidth="lg">
+        <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center">
+          {gifts.filter((gift) => gift.status !== GiftStatus.Claimed).length === 0 ? (
+            <Grid size={12}>
+              <Typography align="center" color="text.secondary">
+                Nenhum presente disponível no momento.
+              </Typography>
             </Grid>
-          ))}
-      </Grid>
+          ) : (
+            gifts
+              .filter((gift) => gift.status !== GiftStatus.Claimed)
+              .map((gift) => (
+                <Grid key={gift.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                  <SingleGift gift={gift} />
+                </Grid>
+              ))
+          )}
+        </Grid>
+      </Container>
     </Box>
   )
 }

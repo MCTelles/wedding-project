@@ -1,9 +1,18 @@
 import { Gift, GiftStatus } from "@/interfaces/gifts";
 import Airtable, { Attachment } from "airtable";
 
+const getAirtableBase = () => {
+  return new Airtable({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_TOKEN }).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE || '')
+}
+
+const giftsTable = process.env.NEXT_PUBLIC_AIRTABLE_GIFTS_TABLE || 'Gifts'
+const giftsView = process.env.NEXT_PUBLIC_AIRTABLE_GIFTS_VIEW || 'Master List'
+const guestsTable = process.env.NEXT_PUBLIC_AIRTABLE_GUESTS_TABLE || 'Guests'
+const guestsView = process.env.NEXT_PUBLIC_AIRTABLE_GUESTS_VIEW
+
 export const submitGiftToAirtable = async (gift: Gift, email: string): Promise<string | void> => {
   if (process.env.NEXT_PUBLIC_AIRTABLE_DISABLED) return
-  const base = new Airtable({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_TOKEN }).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   let userID: string
   try {
@@ -17,7 +26,7 @@ export const submitGiftToAirtable = async (gift: Gift, email: string): Promise<s
   }
 
   return new Promise<void>((resolve, reject) => {
-    base('Gifts').update([  
+    base(giftsTable).update([  
       {
         'id': gift.id,
         'fields': {
@@ -48,14 +57,14 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
     }
   ]
 
-  const base = new Airtable({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_TOKEN }).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   return new Promise<Gift[]>((resolve, reject) => {
     const gifts: Gift[] = []
 
-    base('Gifts')
+    base(giftsTable)
       .select({
-        view: 'Master List',
+        view: giftsView,
       })
       .eachPage(
         function page(records, fetchNextPage) {
@@ -64,14 +73,16 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
           }
 
           records.forEach(function (record) {
+            const attachments = record.get('Picture') as Attachment[] | undefined
+
             gifts.push({
               id: record.id,
-              name: record.get('Gift Name') as string,
-              description: record.get('Description') as string,
-              cost: record.get('Cost') as number,
-              picture: (record.get('Picture') as Attachment[])[0].url,
-              link: record.get('Link') as string,
-              status: record.get('Status') as GiftStatus,
+              name: (record.get('Gift Name') as string) || 'Presente',
+              description: (record.get('Description') as string) || '',
+              cost: (record.get('Cost') as number) || 0,
+              picture: attachments?.[0]?.url || '/luaDeMel.jpeg',
+              link: (record.get('Link') as string) || '',
+              status: (record.get('Status') as GiftStatus) || GiftStatus.NotClaimed,
             })
           })
 
@@ -91,12 +102,13 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
 const getUserIDByEmail = async (email: string): Promise<string> => {
   if (process.env.NEXT_PUBLIC_AIRTABLE_DISABLED) return ''
 
-  const base = new Airtable({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_TOKEN }).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   return new Promise<string>((resolve, reject) => {
-    base('Guests')
+    base(guestsTable)
       .select({
         maxRecords: 1,
+        ...(guestsView ? { view: guestsView } : {}),
         filterByFormula: `{Email}='${email}'`,
       })
       .eachPage(
