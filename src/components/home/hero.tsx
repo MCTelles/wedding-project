@@ -1,6 +1,5 @@
 import React, { FC, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { StyledButton } from '@/components/styled-button'
 import { useTheme } from '@mui/material/styles'
@@ -8,6 +7,7 @@ import { CustomExpandMoreIcon } from '.'
 import { Box, Container, Typography } from '@mui/material'
 import weddingConfig from '@/config/wedding.config'
 import { formatDate, getWeddingDate } from '@/utils/date'
+import HeroBackground from '@/components/hero-background'
 
 const HomeHero: FC = () => {
   const { breakpoints } = useTheme()
@@ -29,26 +29,7 @@ const HomeHero: FC = () => {
     <Box id="hero" sx={{ backgroundColor: 'background.paper', position: 'relative', overflow: 'hidden' }}>
       <Box sx={{ position: 'relative', height: '90vh', overflow: 'hidden' }}>
         <Box sx={{ minHeight: { xs: 213, md: 355 }, opacity: 0.9 }}>
-          <Image
-            src={'/images/banners/home-hero.webp'}
-            alt="Home page banner, wedding"
-            layout="fill"
-            objectFit="cover"
-            objectPosition="center"
-            priority={true}
-          />
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              margin: 0,
-              opacity: 0.7,
-              backgroundColor: 'secondary.dark',
-            }}
-          />
+          <HeroBackground alt="Home page banner, wedding" priority={true} />
         </Box>
         <Container
           maxWidth="lg"

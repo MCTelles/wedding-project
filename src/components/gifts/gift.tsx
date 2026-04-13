@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material'
-import { Gift } from '@/interfaces/gifts'
+import { Gift, GiftStatus } from '@/interfaces/gifts'
 import theme from '@/config/theme'
 
 type SingleGiftsProps = {
@@ -8,22 +8,32 @@ type SingleGiftsProps = {
 }
 
 const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
+  const filloutParams = new URLSearchParams({
+    id: gift.id,
+    giftName: gift.name,
+    giftCost: String(gift.cost),
+    giftPicture: gift.picture,
+    status: GiftStatus.Claimed,
+    giftStatus: GiftStatus.Claimed,
+  })
+
   return (
     <Card
       elevation={4}
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: 390,
+        height: '100%',
         width: '100%',
-        maxWidth: 280,
+        maxWidth: 260,
         mx: 'auto',
         borderRadius: 2,
         backgroundColor: theme.palette.secondary.main,
+        overflow: 'hidden',
       }}
     >
       <CardActionArea
-        data-fillout-id={`${process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID}?id=${gift.id}`}
+        data-fillout-id={`${process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID}?${filloutParams.toString()}`}
         data-fillout-embed-type="popup"
         data-fillout-inherit-parameters
         data-fillout-dynamic-resize
@@ -41,7 +51,8 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
           image={gift.picture}
           alt={gift.name}
           sx={{
-            height: 240,
+            aspectRatio: '9 / 16',
+            height: 'auto',
             width: '100%',
             objectFit: 'contain',
             backgroundColor: '#fff',
@@ -51,10 +62,9 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            flexGrow: 1,
             minHeight: 0,
             px: 2,
-            py: 2,
+            py: 1.5,
           }}
         >
           <Typography
@@ -70,31 +80,37 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              minHeight: '2.75rem',
-              mb: 1.25,
+              minHeight: '2.5rem',
+              mb: 1,
             }}
           >
             {gift.name}
           </Typography>
-          <Typography variant="h6" color="secondary.contrastText" sx={{ fontSize: '1rem', mb: 1 }}>
+          <Typography
+            variant="h6"
+            color="secondary.contrastText"
+            sx={{ fontSize: '1rem', mb: gift.description ? 1 : 0 }}
+          >
             R$ {gift.cost}
           </Typography>
-          <Typography
-            variant="body2"
-            color="secondary.contrastText"
-            sx={{
-              fontSize: '0.82rem',
-              lineHeight: 1.35,
-              overflow: 'hidden',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              wordBreak: 'break-word',
-              overflowWrap: 'anywhere',
-            }}
-          >
-            {gift.description}
-          </Typography>
+          {gift.description && (
+            <Typography
+              variant="body2"
+              color="secondary.contrastText"
+              sx={{
+                fontSize: '0.82rem',
+                lineHeight: 1.35,
+                overflow: 'hidden',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+              }}
+            >
+              {gift.description}
+            </Typography>
+          )}
         </CardContent>
       </CardActionArea>
     </Card>

@@ -3,7 +3,6 @@ import { GiftsClaim, GiftsHero } from '@/components/gifts'
 import { NextPage } from 'next'
 import { Gift } from '@/interfaces/gifts'
 import { Box, CircularProgress } from '@mui/material'
-import { GiftClaim as GiftClaimDisclaimer } from '@/components/home/faqItems'
 import { getGiftsFromAirtable } from '@/utils/airtable'
 
 const Home: NextPage = () => {
@@ -11,19 +10,49 @@ const Home: NextPage = () => {
   const [giftsData, setGiftsData] = React.useState<Gift[]>([])
 
   useEffect(() => {
-    const fetchData = async (): Promise<void> => {
-      getGiftsFromAirtable()
-        .then((gifts) => {
+    let isMounted = true
+
+    const fetchData = async (showLoading = false): Promise<void> => {
+      if (showLoading) {
+        setIsLoading(true)
+      }
+
+      try {
+        const gifts = await getGiftsFromAirtable()
+
+        if (isMounted) {
           setGiftsData(gifts)
-        })
-        .catch((error) => {
-          console.error(error)
-        })
-        .finally(() => {
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (isMounted) {
           setIsLoading(false)
-        })
+        }
+      }
     }
-    fetchData()
+
+    const refreshVisiblePage = (): void => {
+      if (!document.hidden) {
+        fetchData()
+      }
+    }
+
+    fetchData(true)
+
+    const interval = window.setInterval(() => {
+      fetchData()
+    }, 10000)
+
+    window.addEventListener('focus', refreshVisiblePage)
+    document.addEventListener('visibilitychange', refreshVisiblePage)
+
+    return () => {
+      isMounted = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refreshVisiblePage)
+      document.removeEventListener('visibilitychange', refreshVisiblePage)
+    }
   }, [])
 
   return (
@@ -36,9 +65,6 @@ const Home: NextPage = () => {
       ) : (
         <GiftsClaim gifts={giftsData} />
       )}
-      <Box sx={{ my: 3 }}>
-        <GiftClaimDisclaimer />
-      </Box>
     </>
   )
 }
