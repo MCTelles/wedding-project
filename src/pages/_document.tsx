@@ -19,7 +19,10 @@ class MyDocument extends Document<DocumentProps> {
       <Html lang="en">
         <Head>
           <meta charSet="utf-8" />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/favIcon.ico" />
+          <link rel="shortcut icon" href="/favIcon.ico" />
+          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          <link rel="manifest" href="/site.webmanifest" />
           <meta name="viewport" content="initial-scale=1, width=device-width" />
 
           {/* PWA primary color */}

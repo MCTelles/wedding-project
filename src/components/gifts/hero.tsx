@@ -43,18 +43,18 @@ const GiftsHero: FC = () => {
               fontFamily: '"Dancing Script", cursive;',
             }}
           >
-            {weddingConfig.people.groom.firstName} & {weddingConfig.people.bride.firstName}
+            {weddingConfig.people.bride.firstName} & {weddingConfig.people.groom.firstName}
           </Typography>
-            <Typography
+          <Typography
             variant="h4"
             textAlign="center"
             sx={{
               color: 'primary.contrastText',
               fontSize: { md: 28, sm: 26, xs: 22 },
             }}
-            >
+          >
             Obrigado por fazer parte do nosso dia especial.
-            </Typography>
+          </Typography>
           <Typography
             variant="h4"
             textAlign="center"
@@ -64,7 +64,20 @@ const GiftsHero: FC = () => {
               fontSize: { md: 28, sm: 26, xs: 22 },
             }}
           >
-            Clique em qualquer um dos presentes abaixo para reivindicá-los.
+            Clique para escolher qualquer um dos presentes.
+          </Typography>
+
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{
+              color: 'primary.contrastText',
+              pb: { xs: 0, sm: 2, md: 0 },
+              fontSize: { md: 14, sm: 14, xs: 14 },
+            }}
+          >
+            Essa lista é uma mera sugestão. Fique à vontade para presentear como preferir, seja com um valor da lista ou
+            algo totalmente diferente.
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: { xs: 3, sm: 5, md: 5 } }}>
             <Link href="/">
