@@ -14,7 +14,7 @@ const FAQDressCode: FC = () => {
         justifyContent: 'center',
         width: '100%',
         maxWidth: 500,
-        minHeight: { md: 520 },
+        minHeight: { xs: 'auto', md: 520 },
         mx: 'auto',
         borderRadius: 3,
         backgroundColor: theme.palette.secondary.dark,
@@ -25,7 +25,7 @@ const FAQDressCode: FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           height: '100%',
           p: { xs: 2, sm: 2.5, md: 3 },
         }}
@@ -37,38 +37,54 @@ const FAQDressCode: FC = () => {
           variant="h3"
           align="center"
           color="secondary.contrastText"
-          sx={{ my: 1, fontSize: { xs: '1.3rem', sm: '1.55rem', md: '1.8rem' } }}
+          sx={{
+            minHeight: { md: 62 },
+            my: 1,
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.2rem' },
+          }}
         >
-          Como voce deve se vestir?
+          Como você deve se vestir?
         </Typography>
-        <Typography
-          variant="body1"
-          align="center"
-          color="secondary.contrastText"
-          sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+        <Box
+          sx={{
+            minHeight: { xs: 'auto', sm: 80, md: 90 },
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+          }}
         >
-          Traje social ou esporte fino.
-        </Typography>
-        <Typography
-          variant="body1"
-          align="center"
-          color="secondary.contrastText"
-          sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}
-        >
-          Escolha algo confortavel para celebrar conosco.
-        </Typography>
+          <Typography
+            variant="body1"
+            align="center"
+            color="secondary.contrastText"
+            sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+          >
+            Traje social.
+          </Typography>
+          <Typography
+            variant="body1"
+            align="center"
+            color="secondary.contrastText"
+            sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '1rem' } }}
+          >
+            Escolha algo confortável para celebrar conosco.
+          </Typography>
+        </Box>
         <Box
           sx={{
             position: 'relative',
             width: '100%',
             maxWidth: { xs: 300, sm: 320, md: 330 },
+            mt: { xs: 2, md: 'auto' },
             aspectRatio: '1 / 1',
             borderRadius: 2,
             overflow: 'hidden',
             cursor: 'pointer',
           }}
         >
-          <Image alt="Dress code" src="/images/home/attiree.png" layout="fill" objectFit="cover" />
+          <Image alt="Dress code" src="/attire.jpeg" layout="fill" objectFit="cover" />
         </Box>
       </CardActionArea>
     </Card>
