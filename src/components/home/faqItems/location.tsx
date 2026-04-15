@@ -100,13 +100,14 @@ const FAQLocation: FC = () => {
               sx={{
                 position: 'relative',
                 width: '100%',
-                mt: { xs: 2, md: 5 },
+                mt: { xs: 2, md: 'auto' },
                 aspectRatio: '1 / 1',
                 borderRadius: 2,
                 overflow: 'hidden',
+                backgroundColor: '#fff',
               }}
             >
-              <Image alt={weddingConfig.location.title} src="/church.jpeg" layout="fill" objectFit="cover" />
+              <Image alt={weddingConfig.location.title} src="/church.png" layout="fill" objectFit="contain" />
             </Box>
           </Box>
           <Divider
@@ -117,7 +118,7 @@ const FAQLocation: FC = () => {
           <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <Box
               sx={{
-                minHeight: { xs: 'auto', sm: 122, md: 134 },
+                minHeight: { xs: 'auto', sm: 80, md: 90 },
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-start',
@@ -154,14 +155,14 @@ const FAQLocation: FC = () => {
               sx={{
                 position: 'relative',
                 width: '100%',
-                mt: { xs: 2 },
+                mt: { xs: 2, md: 'auto' },
                 aspectRatio: '1 / 1',
                 borderRadius: 2,
                 overflow: 'hidden',
-                backgroundColor: 'rgba(255,255,255,0.12)',
+                backgroundColor: '#fff',
               }}
             >
-              <Image alt="Local da recepcao" src="/party.jpeg" layout="fill" objectFit="cover" />
+              <Image alt="Local da recepcao" src="/reception.jpg" layout="fill" objectFit="contain" />
             </Box>
           </Box>
         </Box>
