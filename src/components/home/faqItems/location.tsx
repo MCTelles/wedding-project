@@ -48,7 +48,7 @@ const FAQLocation: FC = () => {
             fontSize: { xs: '1.5rem', sm: '1.85rem', md: '2.2rem' },
           }}
         >
-          Onde ira acontecer?
+          Onde irá acontecer?
         </Typography>
         <Box
           sx={{
@@ -75,7 +75,7 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ fontSize: { xs: '1rem', sm: '1.05rem', md: '1.15rem' } }}
               >
-                Cerimonia
+                Cerimônia
               </Typography>
               <Typography
                 variant="body1"
@@ -129,7 +129,7 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ fontSize: { xs: '1rem', sm: '1.05rem', md: '1.15rem' } }}
               >
-                Recepcao
+                Recepção
               </Typography>
               <Typography
                 variant="body1"
@@ -137,7 +137,7 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '0.95rem' } }}
               >
-                Tamandare Iate Clube
+                Tamandaré Iate Clube
                 <br />
                 <MuiLink
                   href={receptionLink}
