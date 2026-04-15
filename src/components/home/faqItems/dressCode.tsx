@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import Image from 'next/image'
-import { Box, Card, CardActionArea, Typography } from '@mui/material'
+import { Box, Card, CardContent, Typography } from '@mui/material'
 import theme from '@/config/theme'
 
 const FAQDressCode: FC = () => {
@@ -20,7 +20,7 @@ const FAQDressCode: FC = () => {
         backgroundColor: theme.palette.secondary.dark,
       }}
     >
-      <CardActionArea
+      <CardContent
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -28,10 +28,8 @@ const FAQDressCode: FC = () => {
           justifyContent: 'flex-start',
           height: '100%',
           p: { xs: 2, sm: 2.5, md: 3 },
+          '&:last-child': { pb: { xs: 2, sm: 2.5, md: 3 } },
         }}
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.annabellaw.com/post/what-to-wear-to-a-wedding#:~:text=Black%2DTie%20Optional%20Dress%20Code"
       >
         <Typography
           variant="h3"
@@ -86,7 +84,7 @@ const FAQDressCode: FC = () => {
         >
           <Image alt="Dress code" src="/attire.jpeg" layout="fill" objectFit="cover" />
         </Box>
-      </CardActionArea>
+      </CardContent>
     </Card>
   )
 }

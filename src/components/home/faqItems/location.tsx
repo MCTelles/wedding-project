@@ -1,8 +1,11 @@
 import React, { FC } from 'react'
 import Image from 'next/image'
-import { Box, Card, CardActionArea, Divider, Typography } from '@mui/material'
+import { Box, Card, CardContent, Divider, Link as MuiLink, Typography } from '@mui/material'
 import theme from '@/config/theme'
 import weddingConfig from '@/config/wedding.config'
+
+const receptionLink =
+  'https://www.google.com/maps/place/Tamandar%C3%A9+Iate+Clube/@-29.7504464,-57.0940466,756m/data=!3m2!1e3!4b1!4m6!3m5!1s0x94535b50eac58243:0x5b5017af7a971b74!8m2!3d-29.7504464!4d-57.0914717!16s%2Fg%2F1tyyy66q?entry=ttu&g_ep=EgoyMDI2MDQxMi4wIKXMDSoASAFQAw%3D%3D'
 
 const FAQLocation: FC = () => {
   return (
@@ -22,7 +25,7 @@ const FAQLocation: FC = () => {
         backgroundColor: theme.palette.secondary.dark,
       }}
     >
-      <CardActionArea
+      <CardContent
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -30,10 +33,8 @@ const FAQLocation: FC = () => {
           justifyContent: 'center',
           height: '100%',
           p: { xs: 2, sm: 2.5, md: 3 },
+          '&:last-child': { pb: { xs: 2, sm: 2.5, md: 3 } },
         }}
-        target="_blank"
-        rel="noopener noreferrer"
-        href={weddingConfig.location.link}
       >
         <Typography
           variant="h2"
@@ -82,7 +83,15 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '0.95rem' } }}
               >
-                {weddingConfig.location.title}
+                <MuiLink
+                  href={weddingConfig.location.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="inherit"
+                  underline="always"
+                >
+                  {weddingConfig.location.title}
+                </MuiLink>
                 <br />
                 {weddingConfig.location.address}
               </Typography>
@@ -95,15 +104,9 @@ const FAQLocation: FC = () => {
                 aspectRatio: '1 / 1',
                 borderRadius: 2,
                 overflow: 'hidden',
-                cursor: 'pointer',
               }}
             >
-              <Image
-                alt={`Mapa de ${weddingConfig.location.title}`}
-                src={`https://maps.googleapis.com/maps/api/staticmap?center=${weddingConfig.location.latLng}&zoom=15&size=800x400&markers=${weddingConfig.location.latLng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
-                layout="fill"
-                objectFit="cover"
-              />
+              <Image alt={weddingConfig.location.title} src="/church.jpeg" layout="fill" objectFit="cover" />
             </Box>
           </Box>
           <Divider
@@ -126,7 +129,7 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ fontSize: { xs: '1rem', sm: '1.05rem', md: '1.15rem' } }}
               >
-                Festa
+                Recepção
               </Typography>
               <Typography
                 variant="body1"
@@ -134,9 +137,17 @@ const FAQLocation: FC = () => {
                 color="secondary.contrastText"
                 sx={{ mb: 2, fontSize: { xs: '0.9rem', sm: '0.95rem' } }}
               >
-                Local da recepção
+                <MuiLink
+                  href={receptionLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="inherit"
+                  underline="always"
+                >
+                  Tamandaré Iate Clube
+                </MuiLink>
                 <br />
-                Depois da cerimônia, esperamos vocês para celebrar com jantar, música e muita alegria.
+                R. Gen. Vitorino, 1240 - Centro, Uruguaiana - RS
               </Typography>
             </Box>
             <Box
@@ -147,13 +158,14 @@ const FAQLocation: FC = () => {
                 aspectRatio: '1 / 1',
                 borderRadius: 2,
                 overflow: 'hidden',
-                cursor: 'pointer',
                 backgroundColor: 'rgba(255,255,255,0.12)',
               }}
-            />
+            >
+              <Image alt="Local da recepcao" src="/party.jpeg" layout="fill" objectFit="cover" />
+            </Box>
           </Box>
         </Box>
-      </CardActionArea>
+      </CardContent>
     </Card>
   )
 }
