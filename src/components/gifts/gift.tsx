@@ -8,14 +8,26 @@ type SingleGiftsProps = {
 }
 
 const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
-  const filloutParams = new URLSearchParams({
-    id: gift.id,
-    giftName: gift.name,
-    giftCost: String(gift.cost),
-    giftPicture: gift.picture,
-    status: GiftStatus.Claimed,
-    giftStatus: GiftStatus.Claimed,
-  })
+  const buildFilloutId = (fresh = false): string => {
+    const filloutParams = new URLSearchParams({
+      id: gift.id,
+      giftName: gift.name,
+      giftCost: String(gift.cost),
+      giftPicture: gift.picture,
+      status: GiftStatus.Claimed,
+      giftStatus: GiftStatus.Claimed,
+    })
+
+    if (fresh) {
+      filloutParams.set('fresh', String(Date.now()))
+    }
+
+    return `${process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID}?${filloutParams.toString()}`
+  }
+
+  const refreshFilloutId = (event: React.MouseEvent<HTMLElement>): void => {
+    event.currentTarget.setAttribute('data-fillout-id', buildFilloutId(true))
+  }
 
   return (
     <Card
@@ -33,12 +45,12 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
       }}
     >
       <CardActionArea
-        data-fillout-id={`${process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID}?${filloutParams.toString()}`}
+        data-fillout-id={buildFilloutId()}
         data-fillout-embed-type="popup"
-        data-fillout-inherit-parameters
         data-fillout-dynamic-resize
         data-fillout-popup-size="medium"
         data-id={gift.id}
+        onMouseDown={refreshFilloutId}
         sx={{
           display: 'flex',
           flexDirection: 'column',
