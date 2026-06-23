@@ -2,7 +2,7 @@ import { Gift, GiftStatus } from "@/interfaces/gifts";
 import Airtable, { Attachment } from "airtable";
 
 const getAirtableBase = () => {
-  return new Airtable({ apiKey: process.env.NEXT_PUBLIC_AIRTABLE_TOKEN }).base(process.env.NEXT_PUBLIC_AIRTABLE_BASE || '')
+  return new Airtable({ apiKey: process.env.AIRTABLE_TOKEN }).base(process.env.AIRTABLE_BASE || '')
 }
 
 const giftsTable = process.env.NEXT_PUBLIC_AIRTABLE_GIFTS_TABLE || 'Gifts'
@@ -12,7 +12,7 @@ const guestsView = process.env.NEXT_PUBLIC_AIRTABLE_GUESTS_VIEW
 
 export const submitGiftToAirtable = async (gift: Gift, email: string): Promise<string | void> => {
   if (process.env.NEXT_PUBLIC_AIRTABLE_DISABLED) return
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN }).base(process.env.AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   let userID: string
   try {
@@ -57,7 +57,7 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
     }
   ]
 
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN }).base(process.env.AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   return new Promise<Gift[]>((resolve, reject) => {
     const gifts: Gift[] = []
@@ -102,7 +102,7 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
 const getUserIDByEmail = async (email: string): Promise<string> => {
   if (process.env.NEXT_PUBLIC_AIRTABLE_DISABLED) return ''
 
-  const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN }).base(process.env.AIRTABLE_BASE || '')
+  const base = getAirtableBase()
 
   return new Promise<string>((resolve, reject) => {
     base(guestsTable)
