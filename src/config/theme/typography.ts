@@ -1,4 +1,4 @@
-import type { TypographyVariantsOptions  } from '@mui/material/styles/createTypography'
+import type { TypographyVariantsOptions } from '@mui/material/styles'
 
 export const fontFamily = [
   '"Cabin",-apple-system, BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"',

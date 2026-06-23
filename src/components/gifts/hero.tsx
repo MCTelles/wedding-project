@@ -1,5 +1,4 @@
 import React, { FC } from 'react'
-import Image from 'next/image'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
@@ -8,6 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import weddingConfig from '@/config/wedding.config'
+import HeroBackground from '@/components/hero-background'
 
 const GiftsHero: FC = () => {
   const { breakpoints } = useTheme()
@@ -18,26 +18,7 @@ const GiftsHero: FC = () => {
     <Box id="hero" sx={{ backgroundColor: 'background.paper', position: 'relative', overflow: 'hidden' }}>
       <Box sx={{ position: 'relative', height: { xs: '430px', sm: '450px' }, overflow: 'hidden' }}>
         <Box sx={{ minHeight: { xs: 213, md: 355 } }}>
-          <Image
-            src={'/images/banners/home-hero.webp'}
-            alt="Gift page banner, wedding"
-            layout="fill"
-            objectFit="cover"
-            objectPosition="center"
-            priority={true}
-          />
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              margin: 0,
-              opacity: 0.7,
-              backgroundColor: 'secondary.dark',
-            }}
-          />
+          <HeroBackground alt="Gift page banner, wedding" priority={true} />
         </Box>
         <Container
           maxWidth="lg"
@@ -62,18 +43,18 @@ const GiftsHero: FC = () => {
               fontFamily: '"Dancing Script", cursive;',
             }}
           >
-            {weddingConfig.people.groom.firstName} & {weddingConfig.people.bride.firstName}
+            {weddingConfig.people.bride.firstName} & {weddingConfig.people.groom.firstName}
           </Typography>
-            <Typography
+          <Typography
             variant="h4"
             textAlign="center"
             sx={{
               color: 'primary.contrastText',
               fontSize: { md: 28, sm: 26, xs: 22 },
             }}
-            >
+          >
             Obrigado por fazer parte do nosso dia especial.
-            </Typography>
+          </Typography>
           <Typography
             variant="h4"
             textAlign="center"
@@ -83,7 +64,20 @@ const GiftsHero: FC = () => {
               fontSize: { md: 28, sm: 26, xs: 22 },
             }}
           >
-            Clique em qualquer um dos presentes abaixo para reivindicá-los.
+            Clique para escolher qualquer um dos presentes.
+          </Typography>
+
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{
+              color: 'primary.contrastText',
+              pb: { xs: 0, sm: 2, md: 0 },
+              fontSize: { md: 14, sm: 14, xs: 14 },
+            }}
+          >
+            Essa lista é uma mera sugestão. Fique à vontade para presentear como preferir, seja com um valor da lista ou
+            algo totalmente diferente.
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: { xs: 3, sm: 5, md: 5 } }}>
             <Link href="/">
