@@ -23,7 +23,15 @@ const Home: NextPage<HomePageProps> = ({ gifts }) => {
 }
 
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
-  const gifts = await getGiftsFromAirtable()
+  let gifts: Gift[] = []
+  try {
+    const timeout = new Promise<Gift[]>((_, reject) =>
+      setTimeout(() => reject(new Error('Airtable timeout')), 30000)
+    )
+    gifts = await Promise.race([getGiftsFromAirtable(), timeout])
+  } catch (error) {
+    console.error('Failed to fetch gifts from Airtable:', error)
+  }
 
   return {
     props: { gifts },
