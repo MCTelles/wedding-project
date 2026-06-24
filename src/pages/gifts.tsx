@@ -2,7 +2,7 @@ import React from 'react'
 import { GiftsClaim, GiftsHero } from '@/components/gifts'
 import { GetStaticProps, NextPage } from 'next'
 import { Gift } from '@/interfaces/gifts'
-import { getGiftsFromAirtable } from '@/utils/airtable'
+import { getGifts } from '@/utils/gifts'
 import { Box } from '@mui/material'
 import { GiftClaim as GiftClaimDisclaimer } from '@/components/home/faqItems'
 
@@ -25,12 +25,9 @@ const Home: NextPage<HomePageProps> = ({ gifts }) => {
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   let gifts: Gift[] = []
   try {
-    const timeout = new Promise<Gift[]>((_, reject) =>
-      setTimeout(() => reject(new Error('Airtable timeout')), 30000)
-    )
-    gifts = await Promise.race([getGiftsFromAirtable(), timeout])
+    gifts = await getGifts()
   } catch (error) {
-    console.error('Failed to fetch gifts from Airtable:', error)
+    console.error('Failed to fetch gifts from Supabase:', error)
   }
 
   return {
