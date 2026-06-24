@@ -181,6 +181,152 @@ const DeleteConfirm: FC<{ name: string; onConfirm: () => void; onClose: () => vo
   </Dialog>
 )
 
+// ─── RSVP types ───────────────────────────────────────────────────────────────
+
+type Rsvp = {
+  id: string
+  name: string
+  attending: boolean | null
+  adults: number
+  children: number
+  dietary_restrictions: string | null
+  song: string | null
+  created_at: string
+}
+
+// ─── Presences Tab ────────────────────────────────────────────────────────────
+
+const PresencesTab: FC = () => {
+  const [rsvps, setRsvps] = useState<Rsvp[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/admin/rsvps')
+      .then((r) => r.json())
+      .then((d) => { setRsvps(d); setLoading(false) })
+  }, [])
+
+  const confirmed = rsvps.filter((r) => r.attending)
+  const totalAdults = confirmed.reduce((s, r) => s + (r.adults || 0), 0)
+  const totalChildren = confirmed.reduce((s, r) => s + (r.children || 0), 0)
+
+  const exportCSV = () => {
+    const header = 'Nome,Comparecerá,Adultos,Crianças,Restrições Alimentares,Música'
+    const rows = rsvps.map((r) =>
+      [
+        r.name,
+        r.attending === true ? 'Sim' : r.attending === false ? 'Não' : '—',
+        r.adults,
+        r.children,
+        r.dietary_restrictions ?? '',
+        r.song ?? '',
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    )
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'presencas.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  return (
+    <Box>
+      {/* Resumo */}
+      <Stack direction="row" spacing={2} mb={3} flexWrap="wrap">
+        <Paper sx={{ px: 3, py: 2, minWidth: 130 }}>
+          <Typography variant="h4" fontWeight={700}>{confirmed.length}</Typography>
+          <Typography variant="body2" color="text.secondary">Confirmados</Typography>
+        </Paper>
+        <Paper sx={{ px: 3, py: 2, minWidth: 130 }}>
+          <Typography variant="h4" fontWeight={700}>{rsvps.filter((r) => r.attending === false).length}</Typography>
+          <Typography variant="body2" color="text.secondary">Não vão</Typography>
+        </Paper>
+        <Paper sx={{ px: 3, py: 2, minWidth: 130 }}>
+          <Typography variant="h4" fontWeight={700}>{totalAdults}</Typography>
+          <Typography variant="body2" color="text.secondary">Adultos confirmados</Typography>
+        </Paper>
+        <Paper sx={{ px: 3, py: 2, minWidth: 130 }}>
+          <Typography variant="h4" fontWeight={700}>{totalChildren}</Typography>
+          <Typography variant="body2" color="text.secondary">Crianças confirmadas</Typography>
+        </Paper>
+      </Stack>
+
+      <Stack direction="row" justifyContent="flex-end" mb={2}>
+        {rsvps.length > 0 && (
+          <Button startIcon={<DownloadIcon />} variant="outlined" size="small" onClick={exportCSV}>
+            Exportar CSV
+          </Button>
+        )}
+      </Stack>
+
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>Nome</TableCell>
+              <TableCell>Presença</TableCell>
+              <TableCell>Adultos</TableCell>
+              <TableCell>Crianças</TableCell>
+              <TableCell>Restrições Alimentares</TableCell>
+              <TableCell>Música</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rsvps.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  Nenhuma resposta ainda
+                </TableCell>
+              </TableRow>
+            )}
+            {rsvps.map((rsvp, i) => (
+              <TableRow key={rsvp.id} hover>
+                <TableCell sx={{ color: 'text.secondary', width: 40 }}>{i + 1}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={600}>{rsvp.name}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={rsvp.attending === true ? 'Sim' : rsvp.attending === false ? 'Não' : '—'}
+                    color={rsvp.attending === true ? 'success' : rsvp.attending === false ? 'error' : 'default'}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>{rsvp.adults || '—'}</TableCell>
+                <TableCell>{rsvp.children || '—'}</TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    {rsvp.dietary_restrictions || '—'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">
+                    {rsvp.song || '—'}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  )
+}
+
 // ─── Claims Tab ───────────────────────────────────────────────────────────────
 
 const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) => {
@@ -370,6 +516,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
         <Tab label="Presentes" />
         <Tab label={`Resgates${claimed > 0 ? ` (${claimed})` : ''}`} />
+        <Tab label="Presenças" />
       </Tabs>
 
       {/* Tab: Presentes */}
@@ -437,6 +584,9 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
       {/* Tab: Resgates */}
       {tab === 1 && <ClaimsTab gifts={gifts} loading={loading} />}
+
+      {/* Tab: Presenças */}
+      {tab === 2 && <PresencesTab />}
 
       <GiftModal
         open={modalOpen}
