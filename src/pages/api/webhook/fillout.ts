@@ -10,31 +10,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // URL params (gift id comes from here)
     const urlParams: { id: string; value: string }[] = submission?.urlParameters ?? []
+    const questions: { name: string; value: string }[] = submission?.questions ?? []
+
+    // Log para ver o payload exato do Fillout
+    console.log('Gift webhook payload:', JSON.stringify({ urlParams, questions }, null, 2))
+
     const getParam = (key: string) =>
       urlParams.find((p) => p.id?.toLowerCase() === key.toLowerCase())?.value ?? ''
 
-    // Form questions (name, email, etc.)
-    const questions: { name: string; value: string }[] = submission?.questions ?? []
     const getField = (...names: string[]) => {
       for (const name of names) {
-        const v = questions.find((q) => q.name?.toLowerCase() === name.toLowerCase())?.value
+        const v = questions.find((q) => q.name?.toLowerCase().includes(name.toLowerCase()))?.value
         if (v) return v
       }
       return ''
     }
 
     const giftId = getParam('id')
-    const claimedByName = getField('name', 'nome', 'full name', 'nome completo')
+    const claimedByName = getField('nome', 'name', 'full name', 'nome completo')
     const claimedByEmail = getField('email')
 
+    console.log('Gift parsed:', { giftId, claimedByName, claimedByEmail })
+
     if (!giftId) {
-      return res.status(400).json({ error: 'Missing gift id' })
+      console.error('Missing gift id. urlParams:', urlParams)
+      return res.status(400).json({ error: 'Missing gift id', urlParams })
     }
 
     await claimGift(giftId, claimedByName, claimedByEmail)
-    return res.status(200).json({ ok: true })
+    return res.status(200).json({ ok: true, giftId, claimedByName })
   } catch (err: any) {
-    console.error('Webhook error:', err)
+    console.error('Gift webhook error:', err)
     return res.status(500).json({ error: err.message })
   }
 }
