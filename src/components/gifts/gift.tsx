@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Box, Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material'
+import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material'
 import { Gift, GiftStatus } from '@/interfaces/gifts'
 import theme from '@/config/theme'
 
@@ -122,40 +122,6 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
             >
               {gift.description}
             </Typography>
-          )}
-          {gift.claimedByName && (
-            <Box
-              sx={{
-                mt: 'auto',
-                pt: 1.5,
-                borderTop: '1px solid rgba(255,255,255,0.2)',
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  display: 'block',
-                  color: 'rgba(255,255,255,0.6)',
-                  fontSize: '0.7rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  mb: 0.25,
-                }}
-              >
-                Resgatado por
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: '#fff',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
-                  wordBreak: 'break-word',
-                }}
-              >
-                {gift.claimedByName}
-              </Typography>
-            </Box>
           )}
         </CardContent>
       </CardActionArea>

@@ -2,8 +2,8 @@ import React, { FC, useEffect, useState, useRef } from 'react'
 import {
   Box, Button, Chip, CircularProgress, Dialog, DialogActions,
   DialogContent, DialogTitle, IconButton, InputAdornment, Paper,
-  Stack, Table, TableBody, TableCell, TableContainer, TableHead,
-  TableRow, TextField, Tooltip, Typography, Avatar,
+  Stack, Tab, Table, TableBody, TableCell, TableContainer, TableHead,
+  TableRow, Tabs, TextField, Tooltip, Typography, Avatar,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
@@ -181,11 +181,99 @@ const DeleteConfirm: FC<{ name: string; onConfirm: () => void; onClose: () => vo
   </Dialog>
 )
 
+// ─── Claims Tab ───────────────────────────────────────────────────────────────
+
+const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) => {
+  const claimed = gifts.filter((g) => g.claimedByName)
+
+  const exportCSV = () => {
+    const header = 'Presente,Valor,Resgatado por,Email'
+    const rows = claimed.map((g) =>
+      [g.name, `R$ ${g.cost.toFixed(2)}`, g.claimedByName ?? '', g.claimedByEmail ?? '']
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(',')
+    )
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'resgates.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  return (
+    <Box>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="body2" color="text.secondary">
+          {claimed.length} presente{claimed.length !== 1 ? 's' : ''} resgatado{claimed.length !== 1 ? 's' : ''}
+        </Typography>
+        {claimed.length > 0 && (
+          <Button startIcon={<DownloadIcon />} variant="outlined" size="small" onClick={exportCSV}>
+            Exportar CSV
+          </Button>
+        )}
+      </Stack>
+
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>#</TableCell>
+              <TableCell>Presente</TableCell>
+              <TableCell>Valor</TableCell>
+              <TableCell>Resgatado por</TableCell>
+              <TableCell>Email</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {claimed.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  Nenhum presente resgatado ainda
+                </TableCell>
+              </TableRow>
+            )}
+            {claimed.map((gift, i) => (
+              <TableRow key={gift.id} hover>
+                <TableCell sx={{ color: 'text.secondary', width: 40 }}>{i + 1}</TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Avatar src={gift.picture} variant="rounded" sx={{ width: 36, height: 36 }} />
+                    <Typography variant="body2" fontWeight={600}>{gift.name}</Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell>R$ {gift.cost.toFixed(2)}</TableCell>
+                <TableCell>
+                  <Typography variant="body2">{gift.claimedByName}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" color="text.secondary">{gift.claimedByEmail}</Typography>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  )
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [gifts, setGifts] = useState<Gift[]>([])
   const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Gift | undefined>()
   const [deleting, setDeleting] = useState<Gift | undefined>()
@@ -233,7 +321,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
   }
 
   const exportCSV = () => {
-    const header = 'Nome,Custo,Status,Comprado Por,Email'
+    const header = 'Nome,Custo,Status,Resgatado por,Email'
     const rows = gifts.map((g) =>
       [g.name, g.cost, g.status, g.claimedByName ?? '', g.claimedByEmail ?? '']
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
@@ -256,95 +344,99 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
-          <Typography variant="h4">Lista de Presentes</Typography>
+          <Typography variant="h4">Painel Admin</Typography>
           <Typography variant="body2" color="text.secondary">
-            {claimed} de {gifts.length} presentes comprados
+            {claimed} de {gifts.length} presentes resgatados
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
-          <Button startIcon={<DownloadIcon />} variant="outlined" onClick={exportCSV}>
-            Exportar CSV
-          </Button>
-          <Button startIcon={<AddIcon />} variant="contained" onClick={() => { setEditing(undefined); setModalOpen(true) }}>
-            Adicionar
-          </Button>
+          {tab === 0 && (
+            <>
+              <Button startIcon={<DownloadIcon />} variant="outlined" onClick={exportCSV}>
+                Exportar CSV
+              </Button>
+              <Button startIcon={<AddIcon />} variant="contained" onClick={() => { setEditing(undefined); setModalOpen(true) }}>
+                Adicionar
+              </Button>
+            </>
+          )}
           <Tooltip title="Sair">
             <IconButton onClick={handleLogout}><LogoutIcon /></IconButton>
           </Tooltip>
         </Stack>
       </Stack>
 
-      {/* Table */}
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Foto</TableCell>
-                <TableCell>Nome</TableCell>
-                <TableCell>Custo</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Comprado por</TableCell>
-                <TableCell align="right">Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {gifts.length === 0 && (
+      {/* Tabs */}
+      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
+        <Tab label="Presentes" />
+        <Tab label={`Resgates${claimed > 0 ? ` (${claimed})` : ''}`} />
+      </Tabs>
+
+      {/* Tab: Presentes */}
+      {tab === 0 && (
+        loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
-                    Nenhum presente cadastrado
-                  </TableCell>
+                  <TableCell>Foto</TableCell>
+                  <TableCell>Nome</TableCell>
+                  <TableCell>Custo</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="right">Ações</TableCell>
                 </TableRow>
-              )}
-              {gifts.map((gift) => (
-                <TableRow key={gift.id} hover>
-                  <TableCell>
-                    <Avatar src={gift.picture} variant="rounded" sx={{ width: 48, height: 48 }} />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight={600}>{gift.name}</Typography>
-                    {gift.description && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {gift.description}
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>R$ {gift.cost.toFixed(2)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      label={gift.status === GiftStatus.Claimed ? 'Comprado' : 'Disponível'}
-                      color={gift.status === GiftStatus.Claimed ? 'success' : 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {gift.claimedByName ? (
-                      <Box>
-                        <Typography variant="body2">{gift.claimedByName}</Typography>
-                        <Typography variant="caption" color="text.secondary">{gift.claimedByEmail}</Typography>
-                      </Box>
-                    ) : (
-                      <Typography variant="body2" color="text.disabled">—</Typography>
-                    )}
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => { setEditing(gift); setModalOpen(true) }}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" color="error" onClick={() => setDeleting(gift)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {gifts.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      Nenhum presente cadastrado
+                    </TableCell>
+                  </TableRow>
+                )}
+                {gifts.map((gift) => (
+                  <TableRow key={gift.id} hover>
+                    <TableCell>
+                      <Avatar src={gift.picture} variant="rounded" sx={{ width: 48, height: 48 }} />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight={600}>{gift.name}</Typography>
+                      {gift.description && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {gift.description}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>R$ {gift.cost.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={gift.status === GiftStatus.Claimed ? 'Resgatado' : 'Disponível'}
+                        color={gift.status === GiftStatus.Claimed ? 'success' : 'default'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" onClick={() => { setEditing(gift); setModalOpen(true) }}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" color="error" onClick={() => setDeleting(gift)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )
       )}
+
+      {/* Tab: Resgates */}
+      {tab === 1 && <ClaimsTab gifts={gifts} loading={loading} />}
 
       <GiftModal
         open={modalOpen}
