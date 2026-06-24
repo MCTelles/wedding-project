@@ -26,7 +26,7 @@ export const submitGiftToAirtable = async (gift: Gift, email: string): Promise<s
   }
 
   return new Promise<void>((resolve, reject) => {
-    base(giftsTable).update([  
+    base(giftsTable).update([
       {
         'id': gift.id,
         'fields': {
@@ -57,46 +57,63 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
     }
   ]
 
-  const base = getAirtableBase()
+  const token = process.env.AIRTABLE_TOKEN
+  const baseId = process.env.AIRTABLE_BASE
 
-  return new Promise<Gift[]>((resolve, reject) => {
-    const gifts: Gift[] = []
+  if (!token || !baseId) {
+    console.error('Airtable credentials not configured (AIRTABLE_TOKEN or AIRTABLE_BASE missing)')
+    return []
+  }
 
-    base(giftsTable)
-      .select({
-        view: giftsView,
-      })
-      .eachPage(
-        function page(records, fetchNextPage) {
-          if (!records) {
-            return
-          }
+  const gifts: Gift[] = []
+  let offset: string | undefined
 
-          records.forEach(function (record) {
-            const attachments = record.get('Picture') as Attachment[] | undefined
+  do {
+    const params = new URLSearchParams({ view: giftsView })
+    if (offset) params.set('offset', offset)
 
-            gifts.push({
-              id: record.id,
-              name: (record.get('Gift Name') as string) || 'Presente',
-              description: (record.get('Description') as string) || '',
-              cost: (record.get('Cost') as number) || 0,
-              picture: attachments?.[0]?.url || '/luaDeMel.jpeg',
-              link: (record.get('Link') as string) || '',
-              status: (record.get('Status') as GiftStatus) || GiftStatus.NotClaimed,
-            })
-          })
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 25000)
 
-          fetchNextPage()
-        },
-        function done(err) {
-          if (err) {
-            reject(err)
-            return
-          }
-          resolve(gifts)
+    let data: { records: any[]; offset?: string }
+    try {
+      const res = await fetch(
+        `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(giftsTable)}?${params}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
         }
       )
-  })
+      clearTimeout(timeoutId)
+
+      if (!res.ok) {
+        console.error(`Airtable API error: ${res.status} ${res.statusText}`)
+        break
+      }
+
+      data = await res.json()
+    } catch (err) {
+      clearTimeout(timeoutId)
+      console.error('Airtable fetch error:', err)
+      break
+    }
+
+    for (const record of data.records) {
+      gifts.push({
+        id: record.id,
+        name: record.fields['Gift Name'] || 'Presente',
+        description: record.fields['Description'] || '',
+        cost: record.fields['Cost'] || 0,
+        picture: record.fields['Picture']?.[0]?.url || '/luaDeMel.jpeg',
+        link: record.fields['Link'] || '',
+        status: record.fields['Status'] || GiftStatus.NotClaimed,
+      })
+    }
+
+    offset = data.offset
+  } while (offset)
+
+  return gifts
 }
 
 const getUserIDByEmail = async (email: string): Promise<string> => {
