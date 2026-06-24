@@ -9,8 +9,8 @@ const toGift = (row: any): Gift => ({
   picture: row.picture_url || '/luaDeMel.jpeg',
   link: row.link || '',
   status: row.status as GiftStatus,
-  claimedByName: row.claimed_by_name || undefined,
-  claimedByEmail: row.claimed_by_email || undefined,
+  claimedByName: row.claimed_by_name || null,
+  claimedByEmail: row.claimed_by_email || null,
 })
 
 export const getGifts = async (): Promise<Gift[]> => {
