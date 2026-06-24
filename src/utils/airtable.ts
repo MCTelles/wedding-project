@@ -77,21 +77,28 @@ export const getGiftsFromAirtable = async (): Promise<Gift[]> => {
 
     let data: { records: any[]; offset?: string }
     try {
-      const res = await fetch(
-        `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(giftsTable)}?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          signal: controller.signal,
-        }
-      )
+      let res: Response
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        res = await fetch(
+          `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(giftsTable)}?${params}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: controller.signal,
+          }
+        )
+        if (res.status !== 429) break
+        const wait = parseInt(res.headers.get('Retry-After') || '10') * 1000
+        console.warn(`Airtable 429 — aguardando ${wait}ms (tentativa ${attempt}/3)`)
+        await new Promise(r => setTimeout(r, wait))
+      }
       clearTimeout(timeoutId)
 
-      if (!res.ok) {
-        console.error(`Airtable API error: ${res.status} ${res.statusText}`)
+      if (!res!.ok) {
+        console.error(`Airtable API error: ${res!.status} ${res!.statusText}`)
         break
       }
 
-      data = await res.json()
+      data = await res!.json()
     } catch (err) {
       clearTimeout(timeoutId)
       console.error('Airtable fetch error:', err)
