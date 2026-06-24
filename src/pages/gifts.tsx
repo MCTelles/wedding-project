@@ -35,7 +35,7 @@ export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
 
   return {
     props: { gifts },
-    revalidate: 60,
+    revalidate: 300,
   }
 }
 
