@@ -38,7 +38,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     await claimGift(giftId, claimedByName, claimedByEmail)
-    return res.status(200).json({ ok: true, giftId, claimedByName })
+    return res.status(200).json({
+      ok: true,
+      debug: {
+        urlParams,
+        questions: questions.map((q) => ({ name: q.name, value: q.value })),
+        parsed: { giftId, claimedByName, claimedByEmail },
+      },
+    })
   } catch (err: any) {
     console.error('Gift webhook error:', err)
     return res.status(500).json({ error: err.message })
