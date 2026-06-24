@@ -6,8 +6,8 @@ export interface Gift {
     picture: string
     link: string
     status: GiftStatus
-    claimedByName?: string
-    claimedByEmail?: string
+    claimedByName?: string | null
+    claimedByEmail?: string | null
 }
 
 export enum GiftStatus {
