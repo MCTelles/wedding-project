@@ -6,22 +6,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const body = req.body
+    const submission = body?.submission ?? body
 
-    // Fillout sends submissions under `submission` or directly as fields array
-    const responses: { field: { name: string }; value: string }[] =
-      body?.submission?.responses ?? body?.responses ?? []
+    // URL params (gift id comes from here)
+    const urlParams: { id: string; value: string }[] = submission?.urlParameters ?? []
+    const getParam = (key: string) =>
+      urlParams.find((p) => p.id?.toLowerCase() === key.toLowerCase())?.value ?? ''
 
-    const get = (name: string) =>
-      responses.find((r) => r.field?.name?.toLowerCase() === name.toLowerCase())?.value ?? ''
+    // Form questions (name, email, etc.)
+    const questions: { name: string; value: string }[] = submission?.questions ?? []
+    const getField = (...names: string[]) => {
+      for (const name of names) {
+        const v = questions.find((q) => q.name?.toLowerCase() === name.toLowerCase())?.value
+        if (v) return v
+      }
+      return ''
+    }
 
-    // The gift id is passed as a URL param to the Fillout form
-    const giftId: string =
-      body?.submission?.urlParameters?.find((p: any) => p.id === 'id')?.value ??
-      body?.urlParameters?.find((p: any) => p.id === 'id')?.value ??
-      get('id')
-
-    const claimedByName = get('name') || get('nome') || get('full name') || get('nome completo')
-    const claimedByEmail = get('email')
+    const giftId = getParam('id')
+    const claimedByName = getField('name', 'nome', 'full name', 'nome completo')
+    const claimedByEmail = getField('email')
 
     if (!giftId) {
       return res.status(400).json({ error: 'Missing gift id' })
