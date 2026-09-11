@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'GET') {
     try {
-      const gifts = await getGifts()
+      const gifts = await getGifts(true)
       return res.status(200).json(gifts)
     } catch (err: any) {
       return res.status(500).json({ error: err.message })

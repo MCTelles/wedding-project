@@ -59,7 +59,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (error) throw new Error(error.message)
 
-    return res.status(200).json({ ok: true, parsed: { name, attending, adults, children } })
+    return res.status(200).json({
+      ok: true,
+      debug: {
+        questions: questions.map((q) => ({ name: q.name, value: q.value, type: q.type })),
+        parsed: { name, attending, adults, children, dietary, song },
+      },
+    })
   } catch (err: any) {
     console.error('RSVP webhook error:', err)
     return res.status(500).json({ error: err.message })
