@@ -2,46 +2,59 @@ import React, { FC, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Box } from '@mui/material'
 
-export const heroImages = [
-  '/images/home/IMG-20240611-WA0014.jpg',
-  '/images/home/IMG-20260202-WA0016.jpg',
-  '/images/home/IMG-20260202-WA0017.jpg',
-  '/images/home/IMG-20260202-WA0018.jpg',
-  '/images/home/IMG-20260202-WA0019.jpg',
-  '/images/home/IMG-20260202-WA0020.jpg',
-  '/images/home/IMG-20260202-WA0022.jpg',
-  '/images/home/IMG-20260202-WA0023.jpg',
-  '/images/home/IMG-20260202-WA0024.jpg',
-  '/images/home/IMG-20260202-WA0025.jpg',
-  '/images/home/IMG-20260202-WA0026.jpg',
-  '/images/home/IMG-20260202-WA0027.jpg',
-  '/images/home/IMG-20260202-WA0028.jpg',
-  '/images/home/IMG-20260202-WA0029.jpg',
-  '/images/home/IMG-20260202-WA0031.jpg',
-  '/images/home/IMG-20260202-WA0032.jpg',
-  '/images/home/IMG-20260202-WA0033.jpg',
-  '/images/home/IMG-20260202-WA0034.jpg',
-  '/images/home/IMG-20260202-WA0035.jpg',
-  '/images/home/IMG-20260202-WA0036.jpg',
-  '/images/home/IMG-20260202-WA0037.jpg',
-  '/images/home/IMG-20260202-WA0039.jpg',
-  '/images/home/IMG-20260202-WA0040.jpg',
-  '/images/home/IMG-20260202-WA0042.jpg',
-  '/images/home/IMG-20260202-WA0043.jpg',
-  '/images/home/IMG-20260202-WA0044.jpg',
-  '/images/home/IMG-20260202-WA0046.jpg',
-  '/images/home/IMG-20260202-WA0047.jpg',
-  '/images/home/IMG-20260202-WA0048.jpg',
-  '/images/home/IMG-20260202-WA0049.jpg',
-  '/images/home/IMG-20260202-WA0050.jpg',
-  '/images/home/IMG-20260202-WA0051.jpg',
-  '/images/home/IMG-20260202-WA0052.jpg',
-  '/images/home/IMG-20260202-WA0053.jpg',
-  '/images/home/IMG-20260202-WA0054.jpg',
-  '/images/home/IMG-20260202-WA0055.jpg',
-  '/images/home/IMG-20260202-WA0056.jpg',
-  '/images/home/IMG-20260202-WA0057.jpg',
-  '/images/home/IMG-20260202-WA0058.jpg',
+type HeroImage = { src: string; position: string }
+
+export const heroImages: HeroImage[] = [
+  { src: '/images/home/LeticiaeRafael-103.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-104.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-105.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-106.jpg', position: 'center 15%' },
+  { src: '/images/home/LeticiaeRafael-107.jpg', position: 'center 15%' },
+  { src: '/images/home/LeticiaeRafael-113.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-114.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-115.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-120.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-122.jpg', position: 'center 40%' },
+  { src: '/images/home/LeticiaeRafael-126.jpg', position: 'center 40%' },
+  { src: '/images/home/LeticiaeRafael-127.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-132.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-133.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-134.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-142.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-144.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-146.jpg', position: 'center 40%' },
+  { src: '/images/home/LeticiaeRafael-158.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-160.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-161.jpg', position: 'center 20%' },
+  { src: '/images/home/LeticiaeRafael-162.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-164.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-165.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-167.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-170.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-173.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-175.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-178.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-180.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-182.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-184.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-186.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-190.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-191.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-194.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-196.jpg', position: 'center 40%' },
+  { src: '/images/home/LeticiaeRafael-199.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-203.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-206.jpg', position: 'center 45%' },
+  { src: '/images/home/LeticiaeRafael-219.jpg', position: 'center 25%' },
+  { src: '/images/home/LeticiaeRafael-220.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-221.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-222.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-225.jpg', position: 'center 35%' },
+  { src: '/images/home/LeticiaeRafael-226.jpg', position: 'center 30%' },
+  { src: '/images/home/LeticiaeRafael-227.jpg', position: 'center 40%' },
+  { src: '/images/home/LeticiaeRafael-229.jpg', position: 'center 45%' },
+  { src: '/images/home/LeticiaeRafael-230.jpg', position: 'center 45%' },
+  { src: '/images/home/LeticiaeRafael-237.jpg', position: 'center 30%' },
 ]
 
 type HeroBackgroundProps = {
@@ -65,11 +78,11 @@ const HeroBackground: FC<HeroBackgroundProps> = ({ alt, priority = false }) => {
   return (
     <>
       <Image
-        src={heroImages[currentImageIndex]}
+        src={heroImages[currentImageIndex].src}
         alt={alt}
         layout="fill"
         objectFit="cover"
-        objectPosition="center 38%"
+        objectPosition={heroImages[currentImageIndex].position}
         priority={priority}
       />
       <Box

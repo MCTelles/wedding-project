@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import AddIcon from '@mui/icons-material/Add'
 import DownloadIcon from '@mui/icons-material/Download'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { Gift, GiftStatus } from '@/interfaces/gifts'
+import { Gift } from '@/interfaces/gifts'
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
@@ -329,13 +329,18 @@ const PresencesTab: FC = () => {
 
 // ─── Claims Tab ───────────────────────────────────────────────────────────────
 
+const hasGiftClaim = (gift: Gift): boolean => !!gift.claimedByName || !!gift.claimedByEmail
+
+const claimName = (gift: Gift): string => gift.claimedByName || 'Não informado'
+const claimEmail = (gift: Gift): string => gift.claimedByEmail || 'Não informado'
+
 const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) => {
-  const claimed = gifts.filter((g) => g.claimedByName)
+  const claims = gifts.filter(hasGiftClaim)
 
   const exportCSV = () => {
     const header = 'Presente,Valor,Resgatado por,Email'
-    const rows = claimed.map((g) =>
-      [g.name, `R$ ${g.cost.toFixed(2)}`, g.claimedByName ?? '', g.claimedByEmail ?? '']
+    const rows = claims.map((g) =>
+      [g.name, `R$ ${g.cost.toFixed(2)}`, claimName(g), claimEmail(g)]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(',')
     )
@@ -361,9 +366,9 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) 
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="body2" color="text.secondary">
-          {claimed.length} presente{claimed.length !== 1 ? 's' : ''} resgatado{claimed.length !== 1 ? 's' : ''}
+          {claims.length} resgate{claims.length !== 1 ? 's' : ''} registrado{claims.length !== 1 ? 's' : ''}
         </Typography>
-        {claimed.length > 0 && (
+        {claims.length > 0 && (
           <Button startIcon={<DownloadIcon />} variant="outlined" size="small" onClick={exportCSV}>
             Exportar CSV
           </Button>
@@ -382,14 +387,14 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) 
             </TableRow>
           </TableHead>
           <TableBody>
-            {claimed.length === 0 && (
+            {claims.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Nenhum presente resgatado ainda
                 </TableCell>
               </TableRow>
             )}
-            {claimed.map((gift, i) => (
+            {claims.map((gift, i) => (
               <TableRow key={gift.id} hover>
                 <TableCell sx={{ color: 'text.secondary', width: 40 }}>{i + 1}</TableCell>
                 <TableCell>
@@ -400,10 +405,10 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) 
                 </TableCell>
                 <TableCell>R$ {gift.cost.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Typography variant="body2">{gift.claimedByName}</Typography>
+                  <Typography variant="body2">{claimName(gift)}</Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" color="text.secondary">{gift.claimedByEmail}</Typography>
+                  <Typography variant="body2" color="text.secondary">{claimEmail(gift)}</Typography>
                 </TableCell>
               </TableRow>
             ))}
@@ -467,9 +472,9 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
   }
 
   const exportCSV = () => {
-    const header = 'Nome,Custo,Status,Resgatado por,Email'
+    const header = 'Nome,Custo,Resgatado por,Email'
     const rows = gifts.map((g) =>
-      [g.name, g.cost, g.status, g.claimedByName ?? '', g.claimedByEmail ?? '']
+      [g.name, g.cost, g.claimedByName ?? '', g.claimedByEmail ?? '']
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)
         .join(',')
     )
@@ -483,7 +488,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     URL.revokeObjectURL(url)
   }
 
-  const claimed = gifts.filter((g) => g.status === GiftStatus.Claimed).length
+  const claimsCount = gifts.filter(hasGiftClaim).length
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1100, mx: 'auto' }}>
@@ -492,7 +497,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
         <Box>
           <Typography variant="h4">Painel Admin</Typography>
           <Typography variant="body2" color="text.secondary">
-            {claimed} de {gifts.length} presentes resgatados
+            {claimsCount} resgate{claimsCount !== 1 ? 's' : ''} registrado{claimsCount !== 1 ? 's' : ''}
           </Typography>
         </Box>
         <Stack direction="row" spacing={1}>
@@ -515,7 +520,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
       {/* Tabs */}
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 3 }}>
         <Tab label="Presentes" />
-        <Tab label={`Resgates${claimed > 0 ? ` (${claimed})` : ''}`} />
+        <Tab label={`Resgates${claimsCount > 0 ? ` (${claimsCount})` : ''}`} />
         <Tab label="Presenças" />
       </Tabs>
 
@@ -533,7 +538,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   <TableCell>Foto</TableCell>
                   <TableCell>Nome</TableCell>
                   <TableCell>Custo</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell>Resgatado por</TableCell>
                   <TableCell align="right">Ações</TableCell>
                 </TableRow>
               </TableHead>
@@ -560,11 +565,16 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
                     </TableCell>
                     <TableCell>R$ {gift.cost.toFixed(2)}</TableCell>
                     <TableCell>
-                      <Chip
-                        label={gift.status === GiftStatus.Claimed ? 'Resgatado' : 'Disponível'}
-                        color={gift.status === GiftStatus.Claimed ? 'success' : 'default'}
-                        size="small"
-                      />
+                      {hasGiftClaim(gift) ? (
+                        <>
+                          <Typography variant="body2">{claimName(gift)}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {claimEmail(gift)}
+                          </Typography>
+                        </>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">—</Typography>
+                      )}
                     </TableCell>
                     <TableCell align="right">
                       <IconButton size="small" onClick={() => { setEditing(gift); setModalOpen(true) }}>

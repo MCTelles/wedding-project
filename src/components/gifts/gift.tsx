@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material'
-import { Gift, GiftStatus } from '@/interfaces/gifts'
+import { Gift } from '@/interfaces/gifts'
 import theme from '@/config/theme'
 
 type SingleGiftsProps = {
@@ -8,24 +8,27 @@ type SingleGiftsProps = {
 }
 
 const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
+  const filloutGiftId = process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID
+
   const buildFilloutId = (fresh = false): string => {
+    if (!filloutGiftId) return ''
+
     const filloutParams = new URLSearchParams({
       id: gift.id,
       giftName: gift.name,
       giftCost: String(gift.cost),
       giftPicture: gift.picture,
-      status: GiftStatus.Claimed,
-      giftStatus: GiftStatus.Claimed,
     })
 
     if (fresh) {
       filloutParams.set('fresh', String(Date.now()))
     }
 
-    return `${process.env.NEXT_PUBLIC_FILLOUT_GIFT_ID}?${filloutParams.toString()}`
+    return `${filloutGiftId}?${filloutParams.toString()}`
   }
 
   const refreshFilloutId = (event: React.MouseEvent<HTMLElement>): void => {
+    if (!filloutGiftId) return
     event.currentTarget.setAttribute('data-fillout-id', buildFilloutId(true))
   }
 
@@ -45,12 +48,13 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift }: SingleGiftsProps) => {
       }}
     >
       <CardActionArea
-        data-fillout-id={buildFilloutId()}
+        data-fillout-id={filloutGiftId ? buildFilloutId() : undefined}
         data-fillout-embed-type="popup"
         data-fillout-dynamic-resize
         data-fillout-popup-size="medium"
         data-id={gift.id}
         onMouseDown={refreshFilloutId}
+        disabled={!filloutGiftId}
         sx={{
           display: 'flex',
           flexDirection: 'column',

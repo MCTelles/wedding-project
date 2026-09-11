@@ -13,8 +13,9 @@ const toGift = (row: any): Gift => ({
   claimedByEmail: row.claimed_by_email || null,
 })
 
-export const getGifts = async (): Promise<Gift[]> => {
-  const { data, error } = await supabase
+export const getGifts = async (adminAccess = false): Promise<Gift[]> => {
+  const client = adminAccess ? supabaseAdmin() : supabase
+  const { data, error } = await client
     .from('gifts')
     .select('*')
     .order('created_at', { ascending: true })
@@ -73,16 +74,20 @@ export const claimGift = async (
   id: string,
   claimedByName: string,
   claimedByEmail: string
-): Promise<void> => {
+): Promise<Gift> => {
   const admin = supabaseAdmin()
-  const { error } = await admin
+  const { data, error } = await admin
     .from('gifts')
     .update({
-      status: GiftStatus.Claimed,
-      claimed_by_name: claimedByName,
-      claimed_by_email: claimedByEmail,
+      claimed_by_name: claimedByName || null,
+      claimed_by_email: claimedByEmail || null,
     })
     .eq('id', id)
+    .select()
+    .maybeSingle()
 
   if (error) throw new Error(error.message)
+  if (!data) throw new Error(`Gift not found for id: ${id}`)
+
+  return toGift(data)
 }
