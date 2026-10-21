@@ -1,12 +1,13 @@
 import { createHash } from 'crypto'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { serialize, parse } from 'cookie'
+import { getSupabaseServerKey } from '@/utils/supabase'
 
 const COOKIE_NAME = 'admin_session'
 const COOKIE_MAX_AGE = 60 * 60 * 24 // 24h
 
 export const hashPassword = (password: string) =>
-  createHash('sha256').update(password + process.env.SUPABASE_SERVICE_ROLE_KEY).digest('hex')
+  createHash('sha256').update(password + getSupabaseServerKey()).digest('hex')
 
 export const setAdminCookie = (res: NextApiResponse, password: string) => {
   res.setHeader(

@@ -1,5 +1,5 @@
 import { Gift, GiftStatus } from '@/interfaces/gifts'
-import { supabase, supabaseAdmin } from '@/utils/supabase'
+import { supabaseAdmin } from '@/utils/supabase'
 
 const toGift = (row: any): Gift => ({
   id: row.id,
@@ -13,11 +13,20 @@ const toGift = (row: any): Gift => ({
   claimedByEmail: row.claimed_by_email || null,
 })
 
-export const getGifts = async (adminAccess = false): Promise<Gift[]> => {
-  const client = adminAccess ? supabaseAdmin() : supabase
-  const { data, error } = await client
+export const getGifts = async (): Promise<Gift[]> => {
+  const { data, error } = await supabaseAdmin()
     .from('gifts')
     .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []).map(toGift)
+}
+
+export const getPublicGifts = async (): Promise<Gift[]> => {
+  const { data, error } = await supabaseAdmin()
+    .from('gifts')
+    .select('id,name,description,cost,picture_url,link,status,created_at')
     .order('created_at', { ascending: true })
 
   if (error) throw new Error(error.message)
@@ -70,24 +79,31 @@ export const deleteGift = async (id: string): Promise<void> => {
   if (error) throw new Error(error.message)
 }
 
-export const claimGift = async (
+export const reserveGift = async (
   id: string,
   claimedByName: string,
   claimedByEmail: string
-): Promise<Gift> => {
+): Promise<'reserved' | 'unavailable' | 'not_found'> => {
   const admin = supabaseAdmin()
   const { data, error } = await admin
+    .rpc('reserve_gift', {
+      p_gift_id: id,
+      p_name: claimedByName,
+      p_email: claimedByEmail,
+    })
+  if (error) throw new Error(error.message)
+  return data as 'reserved' | 'unavailable' | 'not_found'
+}
+
+export const releaseGift = async (id: string): Promise<void> => {
+  const { error } = await supabaseAdmin()
     .from('gifts')
     .update({
-      claimed_by_name: claimedByName || null,
-      claimed_by_email: claimedByEmail || null,
+      status: GiftStatus.NotClaimed,
+      claimed_by_name: null,
+      claimed_by_email: null,
+      claimed_at: null,
     })
     .eq('id', id)
-    .select()
-    .maybeSingle()
-
   if (error) throw new Error(error.message)
-  if (!data) throw new Error(`Gift not found for id: ${id}`)
-
-  return toGift(data)
 }
