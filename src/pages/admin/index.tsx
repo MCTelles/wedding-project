@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState, useRef } from 'react'
 import {
-  Box, Button, Chip, CircularProgress, Dialog, DialogActions,
+  Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions,
   DialogContent, DialogTitle, IconButton, InputAdornment, Paper,
   Stack, Tab, Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, Tabs, TextField, Tooltip, Typography, Avatar,
@@ -200,12 +200,45 @@ type Rsvp = {
 const PresencesTab: FC = () => {
   const [rsvps, setRsvps] = useState<Rsvp[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [deleting, setDeleting] = useState<Rsvp | null>(null)
+  const [deleteError, setDeleteError] = useState('')
+  const [deleteBusy, setDeleteBusy] = useState(false)
 
-  useEffect(() => {
-    fetch('/api/admin/rsvps')
-      .then((r) => r.json())
-      .then((d) => { setRsvps(d); setLoading(false) })
-  }, [])
+  const loadRsvps = async () => {
+    setLoading(true)
+    setLoadError('')
+    try {
+      const response = await fetch('/api/admin/rsvps')
+      const data = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(data?.error || 'Não foi possível carregar as respostas.')
+      if (!Array.isArray(data)) throw new Error('A resposta do servidor veio em um formato inesperado.')
+      setRsvps(data)
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar as respostas.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { loadRsvps() }, [])
+
+  const handleDelete = async () => {
+    if (!deleting || deleteBusy) return
+    setDeleteBusy(true)
+    setDeleteError('')
+    try {
+      const response = await fetch(`/api/admin/rsvps?id=${encodeURIComponent(deleting.id)}`, { method: 'DELETE' })
+      const data = await response.json().catch(() => null)
+      if (!response.ok) throw new Error(data?.error || 'Não foi possível remover esta resposta.')
+      setRsvps((current) => current.filter((rsvp) => rsvp.id !== deleting.id))
+      setDeleting(null)
+    } catch (error) {
+      setDeleteError(error instanceof Error ? error.message : 'Não foi possível remover esta resposta.')
+    } finally {
+      setDeleteBusy(false)
+    }
+  }
 
   const confirmed = rsvps.filter((r) => r.attending)
   const totalAdults = confirmed.reduce((s, r) => s + (r.adults || 0), 0)
@@ -246,6 +279,11 @@ const PresencesTab: FC = () => {
 
   return (
     <Box>
+      {loadError && (
+        <Alert severity="error" sx={{ mb: 2 }} action={<Button color="inherit" size="small" onClick={loadRsvps}>Tentar novamente</Button>}>
+          {loadError}
+        </Alert>
+      )}
       {/* Resumo */}
       <Stack direction="row" spacing={2} mb={3} flexWrap="wrap">
         <Paper sx={{ px: 3, py: 2, minWidth: 130 }}>
@@ -286,12 +324,13 @@ const PresencesTab: FC = () => {
               <TableCell>Crianças</TableCell>
               <TableCell>Restrições Alimentares</TableCell>
               <TableCell>Música</TableCell>
+              <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {rsvps.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={9} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Nenhuma resposta ainda
                 </TableCell>
               </TableRow>
@@ -322,11 +361,44 @@ const PresencesTab: FC = () => {
                     {rsvp.song || '—'}
                   </Typography>
                 </TableCell>
+                <TableCell align="right">
+                  <Tooltip title="Apagar esta resposta">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      aria-label={`Apagar resposta de ${rsvp.name}`}
+                      onClick={() => { setDeleteError(''); setDeleting(rsvp) }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={!!deleting} onClose={() => { if (!deleteBusy) setDeleting(null) }}>
+        <DialogTitle>Apagar resposta</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Tem certeza que deseja apagar a resposta de <strong>{deleting?.name}</strong>? Esta ação não pode ser desfeita.
+          </Typography>
+          {deleting && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {deleting.email || 'Sem email'} · enviada em {new Date(deleting.created_at).toLocaleString('pt-BR')}
+            </Typography>
+          )}
+          {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleting(null)} disabled={deleteBusy}>Cancelar</Button>
+          <Button color="error" variant="contained" onClick={handleDelete} disabled={deleteBusy}>
+            {deleteBusy ? <CircularProgress size={18} color="inherit" /> : 'Apagar resposta'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
@@ -432,6 +504,7 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean; onRelease: (gift: Gift) =
 const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [gifts, setGifts] = useState<Gift[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [tab, setTab] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Gift | undefined>()
@@ -441,10 +514,25 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   const loadGifts = async () => {
     setLoading(true)
-    const res = await fetch('/api/admin/gifts')
-    const data = await res.json()
-    setGifts(data)
-    setLoading(false)
+    setLoadError('')
+    try {
+      const res = await fetch('/api/admin/gifts')
+      const data = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(data?.error || 'Não foi possível carregar os presentes.')
+      }
+      if (!Array.isArray(data)) {
+        throw new Error('A resposta do servidor veio em um formato inesperado.')
+      }
+
+      setGifts(data)
+    } catch (error) {
+      setGifts([])
+      setLoadError(error instanceof Error ? error.message : 'Não foi possível carregar os presentes.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { loadGifts() }, [])
@@ -545,6 +633,16 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
         <Tab label={`Resgates${claimsCount > 0 ? ` (${claimsCount})` : ''}`} />
         <Tab label="Presenças" />
       </Tabs>
+
+      {loadError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={<Button color="inherit" size="small" onClick={loadGifts}>Tentar novamente</Button>}
+        >
+          Não foi possível carregar os dados do painel: {loadError}
+        </Alert>
+      )}
 
       {/* Tab: Presentes */}
       {tab === 0 && (
@@ -657,9 +755,9 @@ const AdminPage: FC = () => {
   const [authenticated, setAuthenticated] = useState<boolean | null>(null)
 
   useEffect(() => {
-    fetch('/api/admin/gifts').then((res) => {
-      setAuthenticated(res.status !== 401)
-    })
+    fetch('/api/admin/gifts')
+      .then((res) => setAuthenticated(res.status !== 401))
+      .catch(() => setAuthenticated(true))
   }, [])
 
   if (authenticated === null) {
