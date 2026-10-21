@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC, useState } from 'react'
 import Link from 'next/link'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { StyledButton } from '@/components/styled-button'
@@ -8,22 +8,12 @@ import { Box, Container, Typography } from '@mui/material'
 import weddingConfig from '@/config/wedding.config'
 import { formatDate, getWeddingDate } from '@/utils/date'
 import HeroBackground from '@/components/hero-background'
+import RsvpDialog from './rsvp-dialog'
 
 const HomeHero: FC = () => {
   const { breakpoints } = useTheme()
   const matchTabletView = useMediaQuery(breakpoints.down('md'))
-
-  useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://server.fillout.com/embed/v1/'
-    script.async = true
-
-    document.body.appendChild(script)
-
-    return () => {
-      document.body.removeChild(script)
-    }
-  }, [])
+  const [rsvpOpen, setRsvpOpen] = useState(false)
 
   return (
     <Box id="hero" sx={{ backgroundColor: 'background.paper', position: 'relative', overflow: 'hidden' }}>
@@ -63,9 +53,7 @@ const HomeHero: FC = () => {
               <StyledButton
                 color="dark"
                 size="xlarge"
-                data-fillout-id={process.env.NEXT_PUBLIC_FILLOUT_RSVP_ID}
-                data-fillout-embed-type="popup"
-                data-fillout-inherit-parameters
+                onClick={() => setRsvpOpen(true)}
               >
                 Confirmação de presença
               </StyledButton>
@@ -81,6 +69,7 @@ const HomeHero: FC = () => {
         </Container>
       </Box>
       <CustomExpandMoreIcon />
+      <RsvpDialog open={rsvpOpen} onClose={() => setRsvpOpen(false)} />
     </Box>
   )
 }

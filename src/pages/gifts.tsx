@@ -2,7 +2,7 @@ import React from 'react'
 import { GiftsClaim, GiftsHero } from '@/components/gifts'
 import { GetStaticProps, NextPage } from 'next'
 import { Gift } from '@/interfaces/gifts'
-import { getGifts } from '@/utils/gifts'
+import { getPublicGifts } from '@/utils/gifts'
 import { Box } from '@mui/material'
 import { GiftClaim as GiftClaimDisclaimer } from '@/components/home/faqItems'
 
@@ -25,7 +25,7 @@ const Home: NextPage<HomePageProps> = ({ gifts }) => {
 export const getStaticProps: GetStaticProps<HomePageProps> = async () => {
   let gifts: Gift[] = []
   try {
-    gifts = await getGifts()
+    gifts = await getPublicGifts()
   } catch (error) {
     console.error('Failed to fetch gifts from Supabase:', error)
   }

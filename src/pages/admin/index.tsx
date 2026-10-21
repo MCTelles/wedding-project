@@ -186,6 +186,7 @@ const DeleteConfirm: FC<{ name: string; onConfirm: () => void; onClose: () => vo
 type Rsvp = {
   id: string
   name: string
+  email: string | null
   attending: boolean | null
   adults: number
   children: number
@@ -211,10 +212,11 @@ const PresencesTab: FC = () => {
   const totalChildren = confirmed.reduce((s, r) => s + (r.children || 0), 0)
 
   const exportCSV = () => {
-    const header = 'Nome,Comparecerá,Adultos,Crianças,Restrições Alimentares,Música'
+    const header = 'Nome,Email,Comparecerá,Adultos,Crianças,Restrições Alimentares,Música'
     const rows = rsvps.map((r) =>
       [
         r.name,
+        r.email ?? '',
         r.attending === true ? 'Sim' : r.attending === false ? 'Não' : '—',
         r.adults,
         r.children,
@@ -278,6 +280,7 @@ const PresencesTab: FC = () => {
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>Nome</TableCell>
+              <TableCell>Email</TableCell>
               <TableCell>Presença</TableCell>
               <TableCell>Adultos</TableCell>
               <TableCell>Crianças</TableCell>
@@ -288,7 +291,7 @@ const PresencesTab: FC = () => {
           <TableBody>
             {rsvps.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Nenhuma resposta ainda
                 </TableCell>
               </TableRow>
@@ -299,6 +302,7 @@ const PresencesTab: FC = () => {
                 <TableCell>
                   <Typography variant="body2" fontWeight={600}>{rsvp.name}</Typography>
                 </TableCell>
+                <TableCell>{rsvp.email || '—'}</TableCell>
                 <TableCell>
                   <Chip
                     label={rsvp.attending === true ? 'Sim' : rsvp.attending === false ? 'Não' : '—'}
@@ -334,7 +338,7 @@ const hasGiftClaim = (gift: Gift): boolean => !!gift.claimedByName || !!gift.cla
 const claimName = (gift: Gift): string => gift.claimedByName || 'Não informado'
 const claimEmail = (gift: Gift): string => gift.claimedByEmail || 'Não informado'
 
-const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) => {
+const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean; onRelease: (gift: Gift) => void }> = ({ gifts, loading, onRelease }) => {
   const claims = gifts.filter(hasGiftClaim)
 
   const exportCSV = () => {
@@ -384,12 +388,13 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) 
               <TableCell>Valor</TableCell>
               <TableCell>Resgatado por</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell align="right">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {claims.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                   Nenhum presente resgatado ainda
                 </TableCell>
               </TableRow>
@@ -410,6 +415,9 @@ const ClaimsTab: FC<{ gifts: Gift[]; loading: boolean }> = ({ gifts, loading }) 
                 <TableCell>
                   <Typography variant="body2" color="text.secondary">{claimEmail(gift)}</Typography>
                 </TableCell>
+                <TableCell align="right">
+                  <Button size="small" onClick={() => onRelease(gift)}>Liberar</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -428,6 +436,8 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Gift | undefined>()
   const [deleting, setDeleting] = useState<Gift | undefined>()
+  const [releasing, setReleasing] = useState<Gift | undefined>()
+  const [releaseError, setReleaseError] = useState('')
 
   const loadGifts = async () => {
     setLoading(true)
@@ -468,6 +478,18 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
     if (!deleting) return
     await fetch(`/api/admin/gifts/${deleting.id}`, { method: 'DELETE' })
     setDeleting(undefined)
+    loadGifts()
+  }
+
+  const handleRelease = async () => {
+    if (!releasing) return
+    const res = await fetch(`/api/admin/gifts/${releasing.id}/claim`, { method: 'DELETE' })
+    if (!res.ok) {
+      setReleaseError('Não foi possível liberar o presente. Tente novamente.')
+      return
+    }
+    setReleaseError('')
+    setReleasing(undefined)
     loadGifts()
   }
 
@@ -593,7 +615,7 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
       )}
 
       {/* Tab: Resgates */}
-      {tab === 1 && <ClaimsTab gifts={gifts} loading={loading} />}
+      {tab === 1 && <ClaimsTab gifts={gifts} loading={loading} onRelease={(gift) => { setReleaseError(''); setReleasing(gift) }} />}
 
       {/* Tab: Presenças */}
       {tab === 2 && <PresencesTab />}
@@ -611,6 +633,19 @@ const Dashboard: FC<{ onLogout: () => void }> = ({ onLogout }) => {
           onConfirm={handleDelete}
           onClose={() => setDeleting(undefined)}
         />
+      )}
+      {releasing && (
+        <Dialog open onClose={() => setReleasing(undefined)}>
+          <DialogTitle>Liberar presente</DialogTitle>
+          <DialogContent>
+            <Typography>O presente <strong>{releasing.name}</strong> voltará a ficar disponível para escolha.</Typography>
+            {releaseError && <Typography color="error" variant="body2" sx={{ mt: 2 }}>{releaseError}</Typography>}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setReleasing(undefined)}>Cancelar</Button>
+            <Button onClick={handleRelease} variant="contained">Liberar</Button>
+          </DialogActions>
+        </Dialog>
       )}
     </Box>
   )
