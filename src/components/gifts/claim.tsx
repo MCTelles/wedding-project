@@ -115,6 +115,17 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
                   <Typography variant="body2" color="text.secondary">
                     Confirme seus dados para escolher este presente. Ele ficará indisponível para outras pessoas.
                   </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                    <Box
+                      component="img"
+                      src="/qrCodePayment.png"
+                      alt="QR Code para contribuição via Pix"
+                      sx={{ display: 'block', width: '100%', maxWidth: 220, height: 'auto', borderRadius: 1 }}
+                    />
+                    <Typography variant="caption" color="text.secondary" textAlign="center">
+                      Se desejar, você pode contribuir pelo QR Code acima.
+                    </Typography>
+                  </Box>
                   <TextField label="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required fullWidth inputProps={{ maxLength: 120 }} />
                   <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required fullWidth inputProps={{ maxLength: 254 }} />
                   <input type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: 'absolute', left: '-10000px' }} />
