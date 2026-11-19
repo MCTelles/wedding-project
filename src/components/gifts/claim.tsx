@@ -3,6 +3,8 @@ import { Alert, Box, Button, CircularProgress, Container, Dialog, DialogActions,
 import { Gift } from '@/interfaces/gifts'
 import SingleGift from './gift'
 
+const PIX_KEY = '029.268.940-31'
+
 type GiftsHeroProps = {
   gifts: Gift[]
 }
@@ -18,6 +20,7 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
   const [error, setError] = useState('')
   const [loadingGifts, setLoadingGifts] = useState(gifts.length === 0)
   const [loadError, setLoadError] = useState(false)
+  const [pixCopyStatus, setPixCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
 
   const refreshGifts = async () => {
     try {
@@ -44,6 +47,16 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
     setWebsite('')
     setSuccess(false)
     setError('')
+    setPixCopyStatus('idle')
+  }
+
+  const copyPixKey = async () => {
+    try {
+      await navigator.clipboard.writeText(PIX_KEY.replace(/\D/g, ''))
+      setPixCopyStatus('copied')
+    } catch {
+      setPixCopyStatus('error')
+    }
   }
 
   const submit = async (event: React.FormEvent) => {
@@ -119,10 +132,17 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
                       sx={{ display: 'block', width: '100%', maxWidth: 220, height: 'auto', borderRadius: 1 }}
                     />
                     <Typography variant="body2" textAlign="center">
-                      Chave Pix: 029.268.940-31
+                      Chave Pix: <Box component="span" sx={{ userSelect: 'all' }}>{PIX_KEY}</Box>
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" textAlign="center">
-                      Se desejar, você pode contribuir pelo QR Code acima.
+                    <Button type="button" variant="outlined" size="small" onClick={copyPixKey}>
+                      Copiar chave Pix
+                    </Button>
+                    <Typography variant="caption" color={pixCopyStatus === 'error' ? 'error' : 'text.secondary'} textAlign="center" role="status">
+                      {pixCopyStatus === 'copied'
+                        ? 'Chave copiada! Abra o aplicativo do seu banco e cole na opção de Pix por CPF.'
+                        : pixCopyStatus === 'error'
+                          ? 'Não foi possível copiar. Selecione e copie a chave Pix acima.'
+                          : 'Se desejar, contribua pelo QR Code ou copie a chave Pix para usar no aplicativo do seu banco.'}
                     </Typography>
                   </Box>
                   <TextField label="Nome completo" value={name} onChange={(e) => setName(e.target.value)} required fullWidth inputProps={{ maxLength: 120 }} />
