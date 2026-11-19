@@ -122,6 +122,9 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
                       alt="QR Code para contribuição via Pix"
                       sx={{ display: 'block', width: '100%', maxWidth: 220, height: 'auto', borderRadius: 1 }}
                     />
+                    <Typography variant="body2" textAlign="center">
+                      Chave Pix: 029.268.940-31
+                    </Typography>
                     <Typography variant="caption" color="text.secondary" textAlign="center">
                       Se desejar, você pode contribuir pelo QR Code acima.
                     </Typography>
