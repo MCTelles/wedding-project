@@ -17,7 +17,7 @@ Inicie com `npm run dev`. Verifique tipos com `npx tsc --noEmit --incremental fa
 
 ## Preparar o Supabase
 
-Aplique [a migração SQL](supabase/migrations/20261021_forms.sql) no SQL Editor do **projeto Supabase já utilizado pelo site**, depois de exportar as tabelas atuais. Ela mantém registros existentes, cria os campos necessários, impede duas reservas simultâneas de um presente e restringe o acesso direto às tabelas à chave de servidor.
+Aplique [a migração SQL](supabase/migrations/20261021_forms.sql) no SQL Editor do **projeto Supabase já utilizado pelo site**, depois de exportar as tabelas atuais. Ela mantém registros existentes, cria os campos necessários e restringe o acesso direto às tabelas à chave de servidor.
 
 Antes de aplicar, confira se não há emails duplicados entre RSVPs já existentes:
 
@@ -31,7 +31,7 @@ having count(*) > 1;
 
 Resolva eventuais duplicatas antes da migração. Respostas antigas sem email permanecem no painel para reconciliação manual. Não importe novamente presentes ou respostas que já estejam no Supabase.
 
-A migração usa as tabelas `rsvps`, `gifts` e `form_rate_limits`, além das funções `save_rsvp`, `reserve_gift` e `consume_form_attempt`. O bucket `gift-images` continua sendo usado pelo upload de fotos no painel. Verifique que as fotos já existentes tenham URLs permanentes fora do Airtable.
+A migração usa as tabelas `rsvps`, `gifts` e `form_rate_limits`, além das funções `save_rsvp`, `reserve_gift` e `consume_form_attempt`. A função legada `reserve_gift` não é mais utilizada pelo formulário: a escolha registra os dados sem alterar o status ou bloquear o presente. Essa mudança não exige uma nova migração. O bucket `gift-images` continua sendo usado pelo upload de fotos no painel. Verifique que as fotos já existentes tenham URLs permanentes fora do Airtable.
 
 ## Virada dos formulários antigos
 
@@ -41,7 +41,7 @@ A migração usa as tabelas `rsvps`, `gifts` e `form_rate_limits`, além das fun
 4. Publique esta versão do site. Confira uma resposta de teste em cada formulário e no painel.
 5. Desative os formulários e webhooks antigos do Fillout e retire a integração Airtable. Endereços antigos de formulários compartilhados diretamente também precisam ser desativados ou redirecionados.
 
-O RSVP usa o email como identificador e guarda um token de edição no navegador. Reenvios no mesmo navegador atualizam a resposta. Para alterar de outro dispositivo ou após limpar os dados do navegador, o convidado deve falar com os noivos. A escolha de um presente o reserva imediatamente; o botão **Liberar** na aba Resgates do painel desfaz uma escolha por engano. A reserva não confirma pagamento.
+O RSVP usa o email como identificador e guarda um token de edição no navegador. Reenvios no mesmo navegador atualizam a resposta. Para alterar de outro dispositivo ou após limpar os dados do navegador, o convidado deve falar com os noivos. Os presentes são ilustrativos e continuam disponíveis após qualquer escolha, inclusive os que tinham status `Claimed`. O painel mantém os dados da escolha mais recente por presente; o botão **Liberar** limpa esses dados. A escolha não confirma pagamento.
 
 O histórico de configuração antiga está em `airtable/` e `fillout/`; esses arquivos são exemplos e não representam necessariamente o estado publicado. O roteiro e os critérios da migração estão em [docs/plano-migracao-formularios.md](docs/plano-migracao-formularios.md).
 

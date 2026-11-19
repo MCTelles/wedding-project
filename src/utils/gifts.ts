@@ -79,20 +79,24 @@ export const deleteGift = async (id: string): Promise<void> => {
   if (error) throw new Error(error.message)
 }
 
-export const reserveGift = async (
+export const recordGiftSelection = async (
   id: string,
   claimedByName: string,
   claimedByEmail: string
-): Promise<'reserved' | 'unavailable' | 'not_found'> => {
+): Promise<'recorded' | 'not_found'> => {
   const admin = supabaseAdmin()
   const { data, error } = await admin
-    .rpc('reserve_gift', {
-      p_gift_id: id,
-      p_name: claimedByName,
-      p_email: claimedByEmail,
+    .from('gifts')
+    .update({
+      claimed_by_name: claimedByName,
+      claimed_by_email: claimedByEmail,
+      claimed_at: new Date().toISOString(),
     })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
   if (error) throw new Error(error.message)
-  return data as 'reserved' | 'unavailable' | 'not_found'
+  return data ? 'recorded' : 'not_found'
 }
 
 export const releaseGift = async (id: string): Promise<void> => {
