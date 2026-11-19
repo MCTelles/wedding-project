@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import { Alert, Box, Button, CircularProgress, Container, Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, TextField, Typography } from '@mui/material'
-import { Gift, GiftStatus } from '@/interfaces/gifts'
+import { Gift } from '@/interfaces/gifts'
 import SingleGift from './gift'
 
 type GiftsHeroProps = {
@@ -60,10 +60,6 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
       const result = await res.json()
       if (!res.ok) throw new Error(result.error || 'Não foi possível escolher o presente.')
       setSuccess(true)
-      setCurrentGifts((previous) => previous.map((gift) =>
-        gift.id === selected.id ? { ...gift, status: GiftStatus.Claimed } : gift
-      ))
-      refreshGifts()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível escolher o presente.')
       refreshGifts()
@@ -113,7 +109,7 @@ const GiftsClaim: FC<GiftsHeroProps> = ({ gifts }: GiftsHeroProps) => {
               <Box component="form" id="gift-form" onSubmit={submit}>
                 <Stack spacing={2.5} sx={{ pt: 1 }}>
                   <Typography variant="body2" color="text.secondary">
-                    Confirme seus dados para escolher este presente. Ele ficará indisponível para outras pessoas.
+                    Confirme seus dados para escolher este presente. Os presentes são ilustrativos e podem ser escolhidos por mais de uma pessoa.
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                     <Box

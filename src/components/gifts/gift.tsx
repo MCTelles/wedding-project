@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
-import { Card, CardActionArea, CardContent, CardMedia, Chip, Typography } from '@mui/material'
-import { Gift, GiftStatus } from '@/interfaces/gifts'
+import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/material'
+import { Gift } from '@/interfaces/gifts'
 import theme from '@/config/theme'
 
 type SingleGiftsProps = {
@@ -9,8 +9,6 @@ type SingleGiftsProps = {
 }
 
 const SingleGift: FC<SingleGiftsProps> = ({ gift, onSelect }) => {
-  const available = gift.status !== GiftStatus.Claimed
-
   return (
     <Card
       elevation={4}
@@ -28,7 +26,6 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift, onSelect }) => {
     >
       <CardActionArea
         onClick={() => onSelect(gift)}
-        disabled={!available}
         sx={{
           display: 'flex',
           flexDirection: 'column',
@@ -57,7 +54,6 @@ const SingleGift: FC<SingleGiftsProps> = ({ gift, onSelect }) => {
             py: 1.5,
           }}
         >
-          {!available && <Chip label="Já escolhido" size="small" sx={{ alignSelf: 'flex-start', mb: 1 }} />}
           <Typography
             variant="h5"
             component="div"
